@@ -14,6 +14,8 @@ struct UltimateApp: App {
     init() {
         let dataController = DataController()
         _dataController = StateObject(wrappedValue: dataController)
+        
+        configureSupportViews()
     }
     
     var body: some Scene {
@@ -21,6 +23,20 @@ struct UltimateApp: App {
             ContentView()
                 .environment(\.managedObjectContext, dataController.container.viewContext)
                 .environmentObject(dataController)
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification), perform: save)
         }
+    }
+    
+    // MARK:  Configuration
+    
+    private func configureSupportViews() {
+        // TabView
+        UITabBar.appearance().shadowImage = UIImage()
+    }
+    
+    // MARK: Actions
+    
+    func save(_ note: Notification) {
+        dataController.save()
     }
 }

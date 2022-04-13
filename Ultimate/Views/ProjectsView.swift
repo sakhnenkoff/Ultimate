@@ -8,8 +8,13 @@
 import SwiftUI
 
 struct ProjectsView: View {
+    static let openTag: String? = "Open"
+    static let closedTag: String? = "Closed"
     let showClosedProjects: Bool
     let projects: FetchRequest<Project>
+    
+    @EnvironmentObject var dataController: DataController
+    @Environment(\.managedObjectContext) var moc
     
     init(showClosedProjects: Bool) {
         self.showClosedProjects = showClosedProjects
@@ -21,15 +26,55 @@ struct ProjectsView: View {
         NavigationView {
             List {
                 ForEach(projects.wrappedValue) { project in
-                    Section(header: Text(project.title ?? "")) {
-                        ForEach(project.wrappeedItems ?? []) { item in
-                            Text(item.title ?? "")
+                    Section(header: ProjectHeaderView(project: project)) {
+                        ForEach(project.wrappeedItems) { item in
+                            ItemRowView(item: item)
                         }
+                        .onDelete { offsets in
+                            let allItems = project.wrappeedItems
+                            
+                            for offset in offsets {
+                                let item = allItems[offset]
+                                dataController.delete(item)
+                                
+                                dataController.save()
+                            }
+                        }
+                        
+                        if !showClosedProjects {
+                            Button {
+                                withAnimation {
+                                    let item = Item(context: moc)
+                                    item.project = project
+                                    item.creationDate = Date()
+                                    dataController.save()
+                                }
+                            } label: {
+                                Label("Add new Item", systemImage: "plus")
+                            }
+                        }
+                        
                     }
                 }
             }
             .listStyle(InsetGroupedListStyle())
             .navigationTitle(showClosedProjects ? "Closed Projects" : "Open Projects")
+            .toolbar {
+                if showClosedProjects == false {
+                    Button {
+                        withAnimation {
+                            let project = Project(context: moc)
+                            project.closed = false
+                            project.title = "New Project"
+                            project.creationDate = Date()
+                            project.items = []
+                            dataController.save()
+                        }
+                    } label: {
+                        Label("Add Project", systemImage: "plus")
+                    }
+                }
+            }
         }
     }
 }

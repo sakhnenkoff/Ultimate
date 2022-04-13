@@ -23,13 +23,6 @@ extension Project {
     @NSManaged public var title: String?
     @NSManaged public var items: NSSet?
     
-    public var wrappeedItems: [Item]? {
-        if let set = items as? Set<Item> {
-            return Array(set)
-        }
-        return nil
-    }
-
 }
 
 // MARK: Generated accessors for items
