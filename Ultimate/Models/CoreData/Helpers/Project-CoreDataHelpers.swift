@@ -23,9 +23,13 @@ extension Project {
         color ?? "Light Blue"
     }
     
-    var wrappeedItems: [Item] {
-        if let set = items as? Set<Item> {
-            return Array(set).sorted { first, second in
+    var wrappedItems: [Item] {
+        let items = items?.allObjects as? [Item] ?? []
+       return items
+    }
+
+    var wrappeedItemsDefaultSorted: [Item] {
+        return wrappedItems.sorted { first, second in
                 if first.completed == false {
                     if second.completed == true {
                         return true
@@ -44,8 +48,6 @@ extension Project {
                 
                 return first.itemCreationDate < second.itemCreationDate
             }
-        }
-        return []
     }
     
     var completionAmount: Double {

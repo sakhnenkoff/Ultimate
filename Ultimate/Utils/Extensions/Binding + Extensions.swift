@@ -15,6 +15,5 @@ extension Binding {
             self.wrappedValue = newValue
             completion()
         }
-
     }
 }
